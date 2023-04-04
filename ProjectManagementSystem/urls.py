@@ -16,3 +16,21 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from ProjectManagementSystemApp import views
+
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('home/', views.Home, name='Home'),
+    path('landing/', views.Landing, name='Landing'),
+    path('login/', views.Login, name='Login'),
+
+    path('view-projects/', views.ViewProjects, name='ViewProjects'),
+    path('project-dashboard/', views.ProjectDashboard, name='ProjectDashboard'),
+    path('view-teams/', views.ViewTeams, name='ViewTeams'),
+    path('team-dashboard/', views.TeamDashboard, name='TeamDashboard'),
+
+    path('create-project/', views.CreateProject, name='CreateProject'),
+    path('create-team/', views.CreateTeam, name='CreateTeam'),
+    path('create-task/', views.CreateTask, name='CreateTask'),
+    path('submit-report/', views.SubmitReport, name='SubmitReport'),
+]
