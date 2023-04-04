@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="taskform.css">
+    </head>
+    <body>
+        <div class="taskform">
+            <h1>Task Form</h1>
+            <form method="post">
+                <input type="text" name="tn" placeholder="Task Name" required="required" />
+                <textarea name="td" placeholder="Task Description" rows="3" required></textarea>
+                <input type="text" name="m" placeholder="Assign Team Members" required="required" />
+                <label >Due Date</label>
+                <input type="date" name="d" placeholder="Due-Date" required="required" />
+                <label >Attach File</label>
+        
+                <input type="file" placeholder="Attachments" name="attachment">
+                <input type="text" name="cmnt" placeholder="Comments"/>
+        
+                <button type="submit" class="btn btn-primary btn-block btn-large">Add Task</button>
+            </form>
+        </div>
+    </body>
+</html>
