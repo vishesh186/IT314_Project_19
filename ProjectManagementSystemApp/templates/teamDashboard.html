@@ -1,0 +1,76 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="row px-2 px-md-4 py-4">
+    <div class="col-12 mb-2">
+        <h2 class="m-0">Team #1 Dashboard</h2>
+        <hr class="border-3 my-2">
+    </div>
+    <div class="col-12 mb-3">
+        <div class="row px-2 mb-3">
+            <div class="py-2 px-3 bg-info-subtle rounded-3">
+                <div class="mb-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+                <table class="mb-2">
+                    <tr>
+                        <td class="fw-semibold">Managed By</td>
+                        <td class="px-2">:</td>
+                        <td>Manager #1</td>
+                    </tr>
+                </table>
+                <div class="d-none d-md-flex column-gap-2 justify-content-end">
+                    <div class="">
+                        <a class="btn btn-danger btn-sm">Remove Member</a>
+                    </div>
+                    <div class="">
+                        <a class="btn btn-success btn-sm">Add Member</a>
+                    </div>
+                </div>
+                <div class="pt-2 d-md-none text-end">
+                    <div class="mb-1">
+                        <a class="btn btn-danger btn-sm" style="width: 140px">Remove Member</a>
+                    </div>
+                    <div class="mb-1">
+                        <a class="btn btn-success btn-sm" style="width: 140px">Add Member</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Tasks -->
+    <div class="col-12 mb-2">
+        <h4 class="m-0">Current Members</h4>
+        <hr class="border-3 my-2 mb-1">
+    </div>
+    <div class="col-12">
+        <div class="row px-2 mb-2">
+            <div class="col">
+                <div class="row align-items-center mb-2 bg-danger-subtle rounded-3 p-1">
+                    <span class="col-md-auto fw-semibold mb-1 mb-md-0">Member Name</span>
+                    <span class="col-md text-muted text-end" style="font-size: 14px">
+                        Joined on 1st April 2023
+                    </span>
+                </div>
+                <div class="row align-items-center mb-2 bg-danger-subtle rounded-3 p-1">
+                    <span class="col-md-auto fw-semibold mb-1 mb-md-0">Member Name</span>
+                    <span class="col-md text-muted text-end" style="font-size: 14px">
+                        Joined on 1st April 2023
+                    </span>
+                </div>
+                <div class="row align-items-center mb-2 bg-danger-subtle rounded-3 p-1">
+                    <span class="col-md-auto fw-semibold mb-1 mb-md-0">Member Name</span>
+                    <span class="col-md text-muted text-end" style="font-size: 14px">
+                        Joined on 1st April 2023
+                    </span>
+                </div>
+                <div class="row align-items-center mb-2 bg-danger-subtle rounded-3 p-1">
+                    <span class="col-md-auto fw-semibold mb-1 mb-md-0">Member Name</span>
+                    <span class="col-md text-muted text-end" style="font-size: 14px">
+                        Joined on 1st April 2023
+                    </span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
