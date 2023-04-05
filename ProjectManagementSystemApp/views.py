@@ -45,3 +45,14 @@ def ViewTeams(request):
 def TeamDashboard(request):
     return render(request, 'teamDashboard.html')
 
+
+def Resources(request):
+    return render(request, 'viewResources.html')
+
+
+def RequestResource(request):
+    return render(request, 'requestResource.html')
+
+
+def ManageResources(request):
+    return render(request, 'manageResources.html')
