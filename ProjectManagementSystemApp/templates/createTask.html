@@ -1,0 +1,43 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="row px-2 px-md-4 py-4">
+    <div class="col-12 mb-2">
+        <h2 class="m-0">Create New Task</h2>
+        <hr class="border-3 my-2">
+    </div>
+    <div class="col-12 mb-3">
+        <div class="row px-2">
+            <div class="p-3 bg-body-secondary rounded-3">
+                <form method="POST">
+                    <div class="mb-3">
+                      <label class="form-label">Task Title</label>
+                      <input type="email" class="form-control" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Description</label>
+                      <textarea name='description' class="form-control" placeholder="Describe the task in detail" style="height: 100px" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Select Task Assignee</label>
+                            <select class="form-select" required name="assignee"> 
+                                <option selected disabled value="">Team Member</option>
+                                <option value="1">Team Member 1</option>
+                                <option value="2">Team Member 2</option>
+                                <option value="3">Team Member 3</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Deadline</label>
+                            <input type="date" name="deadline" class="form-control">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Create Task</button>
+                </form>            
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
