@@ -1,0 +1,71 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+
+<div class="row px-2 px-md-4 py-4">
+    <div class="col-12 mb-2">
+        <h2 class="m-0">Resource Requests</h2>
+        <hr class="border-3 my-2">
+    </div>
+    <div class="">
+        <div class="row px-2 mb-3 table-responsive">
+            <table class="table table-striped border">
+                <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Resource Name</th>
+                      <th scope="col">Requested By</th>
+                      <th scope="col">Requested Slot</th>
+                      <th scope="col">Manage</th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-group-divider">
+                    <tr>
+                      <td scope="col">1</th>
+                      <td scope="col">Meeting Room 1</th>
+                      <td scope="col">Team # 1</th>
+                      <td scope="col-2">15:00 - 16:00, 5th April</th>
+                      <td scope="col">
+                        <a class="text-danger fw-semibold mx-1" style="text-decoration: none;" href=""> Reject </a>
+                        <a class="text-success fw-semibold mx-1" style="text-decoration: none;" href=""> Allot </a>
+                      </td>
+                    </tr>
+                    <!-- Demo -->
+                    <tr>
+                        <td scope="col">2</th>
+                        <td scope="col">Meeting Room 2</th>
+                        <td scope="col">Team # 2</th>
+                        <td scope="col-2">15:00 - 16:00, 5th April</th>
+                        <td scope="col">
+                          <a class="text-danger fw-semibold mx-1" style="text-decoration: none;" href=""> Reject </a>
+                          <a class="text-success fw-semibold mx-1" style="text-decoration: none;" href=""> Allot </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td scope="col">3</th>
+                        <td scope="col">Meeting Room 3</th>
+                        <td scope="col">Team # 3</th>
+                        <td scope="col-2">11:00 - 12:00, 5th April</th>
+                        <td scope="col">
+                          <a class="text-danger fw-semibold mx-1" style="text-decoration: none;" href=""> Reject </a>
+                          <a class="text-success fw-semibold mx-1" style="text-decoration: none;" href=""> Allot </a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td scope="col">4</th>
+                        <td scope="col">Meeting Room 4</th>
+                        <td scope="col">Team # 4</th>
+                        <td scope="col-2">11:00 - 13:00, 5th April</th>
+                        <td scope="col">
+                          <a class="text-danger fw-semibold mx-1" style="text-decoration: none;" href=""> Reject </a>
+                          <a class="text-success fw-semibold mx-1" style="text-decoration: none;" href=""> Allot </a>
+                        </td>
+                      </tr>
+                  </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

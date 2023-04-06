@@ -33,7 +33,7 @@ urlpatterns = [
     path('create-team/', views.CreateTeam, name='CreateTeam'),
     path('create-task/', views.CreateTask, name='CreateTask'),
     path('submit-report/', views.SubmitReport, name='SubmitReport'),
-    
+  
     path('resources/', views.Resources, name='Resources'),
     path('manage-resources/', views.ManageResources, name='ManageResources'),
     path('resource-booking-request/', views.RequestResource, name='RequestResource'),
