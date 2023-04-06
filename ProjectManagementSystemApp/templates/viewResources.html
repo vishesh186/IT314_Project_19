@@ -1,0 +1,66 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+
+<div class="row px-2 px-md-4 py-4">
+    <div class="col-12 mb-2">
+        <h2 class="m-0">Resources</h2>
+        <hr class="border-3 my-2">
+    </div>
+    <div class="">
+        <div class="row px-2 mb-3 table-responsive">
+            <table class="table table-striped border">
+                <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Current Status</th>
+                      <th scope="col">Current User</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-group-divider">
+                    <tr>
+                      <td scope="col">1</th>
+                      <td scope="col">Meeting Room 1</th>
+                      <td scope="col">Unoccupied</th>
+                      <td scope="col">-</th>
+                      <td scope="col"><a class="fw-semibold" style="text-decoration: none;" href="{% url 'RequestResource' %}"> Book </a></td>
+                    </tr>
+                    <!-- Demo -->
+                    <tr>
+                        <td scope="col">2</th>
+                        <td scope="col">Meeting Room 2</th>
+                        <td scope="col">Occupied</th>
+                        <td scope="col">Team #2</th>
+                        <td scope="col"><a class="fw-semibold text-muted" style="text-decoration: none;" href="{% url 'RequestResource' %}"> Book </a></td>
+                      </tr>
+                      <tr>
+                        <td scope="col">3</th>
+                        <td scope="col">Meeting Room 3</th>
+                        <td scope="col">Occupied</th>
+                        <td scope="col">Manager #2</th>
+                        <td scope="col"><a class="fw-semibold text-muted" style="text-decoration: none;" href="{% url 'RequestResource' %}"> Book </a></td>
+                      </tr>
+                      <tr>
+                        <td scope="col">4</th>
+                        <td scope="col">Meeting Room 4</th>
+                        <td scope="col">Unoccupied</th>
+                        <td scope="col">-</th>
+                        <td scope="col"><a class="fw-semibold" style="text-decoration: none;" href="{% url 'RequestResource' %}"> Book </a></td>
+                      </tr>
+                      <tr>
+                        <td scope="col">5</th>
+                        <td scope="col">Meeting Room 5</th>
+                        <td scope="col">Occupied</th>
+                        <td scope="col">Team #1</th>
+                        <td scope="col"><a class="fw-semibold text-muted" style="text-decoration: none;" href="{% url 'RequestResource' %}"> Book </a></td>
+                      </tr>
+                  </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
