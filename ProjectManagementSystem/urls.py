@@ -20,7 +20,7 @@ from ProjectManagementSystemApp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('home/', views.Home, name='Home'),
+    path('', views.Home, name='Home'),
     path('landing/', views.Landing, name='Landing'),
     path('login/', views.Login, name='Login'),
 

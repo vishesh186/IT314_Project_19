@@ -1,4 +1,5 @@
 {% load static %}
+<!DOCTYPE html>
 
 <style>
   body {
@@ -30,9 +31,9 @@
 }
 </style>
 
-<!DOCTYPE html>
 <html lang="en">
     <head>
+        <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Project Management System</title>
@@ -48,31 +49,44 @@
           <nav id="navbarNav" class="pt-5 collapse show collapse-horizontal sidebar bg-white navbar-collapse border border-right">
             <div class="position-sticky">
               <div class="list-group list-group-flush mx-3 mt-4">
-                <a href="#"
-                   class="list-group-item list-group-item-action py-2 rounded active"
+
+                <a href="{% url 'ViewTeams' %}"
+                   class="list-group-item list-group-item-action py-2 rounded"
                    aria-current="true">
-                  
-                  <span class="text-nowrap">Dashboard</span>
+                  <span class="text-nowrap">Manage Teams</span>
                 </a>
-                <a href="#"
-                   class="list-group-item list-group-item-action py-2 rounded">
-                  <span class="text-nowrap">Team Management</span>
+
+                <a href="{% url 'CreateProject' %}"
+                    class="list-group-item list-group-item-action rounded py-2">
+                    <span class="text-nowrap">Create Project</span>
                 </a>
-                <a href="#"
-                  class="list-group-item list-group-item-action rounded py-2">
-                  
-                  <span class="text-nowrap">Create New Project</span>
-                </a>
-                <a href="#"
+                
+                <a href="{% url 'ViewProjects' %}"
                    class="list-group-item list-group-item-action rounded py-2">
                   
-                   <span class="text-nowrap">View Projects</span>
+                   <span class="text-nowrap">Manage Projects</span>
                 </a>
-                <a href="#"
+
+                <a href="{% url 'CreateTask' %}"
                    class="list-group-item list-group-item-action rounded py-2">
-                  
-                   <span class="text-nowrap">Add Employee</span>
+                   <span class="text-nowrap">Create Task</span>
                 </a>
+
+                <a href="{% url 'SubmitReport' %}"
+                   class="list-group-item list-group-item-action rounded py-2">
+                   <span class="text-nowrap">Submit Report</span>
+                </a>
+
+                <a href="{% url 'Resources' %}"
+                   class="list-group-item list-group-item-action rounded py-2">
+                   <span class="text-nowrap">View Resources</span>
+                </a>
+
+                <a href="{% url 'ManageResources' %}"
+                   class="list-group-item list-group-item-action rounded py-2">
+                   <span class="text-nowrap">Manage Resources</span>
+                </a>
+                
               </div>
             </div>
           </nav>        
@@ -109,7 +123,6 @@
     <script>
       function initSidebar() {
         var sidebar = document.getElementsByClassName('sidebar');
-        console.log(sidebar)
         var width = (window.innerWidth > 0) ? window.innerWidth : screen.Width;
         if(sidebar.length > 0) {
             if(width < 991.98) {

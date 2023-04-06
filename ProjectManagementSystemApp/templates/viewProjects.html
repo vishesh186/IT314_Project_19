@@ -1,0 +1,58 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+
+<div class="row px-2 px-md-4 py-4">
+    <div class="col-12 mb-2">
+        <h2 class="m-0">Ongoing Projects</h2>
+        <hr class="border-3 my-2">
+    </div>
+    <div class="">
+        <div class="row px-2 mb-3">
+            <div class="py-2 px-3 bg-info-subtle rounded-3">
+                <h4 class="mt-1">Project Name</h4>
+                <div class="mb-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+                <table class="mb-3">
+                    <tr>
+                        <td class="fw-semibold">Team Assigned </td>
+                        <td class="px-2">: </td>
+                        <td>Team #1</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-semibold">Managed By </td>
+                        <td class="px-2">: </td>
+                        <td>Manager #1</td>
+                    </tr>
+                </table>
+                <div class="mb-2 text-end">
+                    <a class="btn btn-outline-dark btn-sm" href="{% url 'ProjectDashboard' %}">Manage Project</a>
+                </div>
+            </div>
+        </div>
+        <!-- Replica for demo purposes -->
+        <div class="row px-2 mb-3">
+            <div class="py-2 px-3 bg-info-subtle rounded-3">
+                <h4 class="mt-1">Project Name</h4>
+                <div class="mb-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+                <table class="mb-3">
+                    <tr>
+                        <td class="fw-semibold">Team Assigned </td>
+                        <td class="px-2">: </td>
+                        <td>Team #1</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-semibold">Managed By </td>
+                        <td class="px-2">: </td>
+                        <td>Manager #1</td>
+                    </tr>
+                </table>
+                <div class="mb-2 text-end">
+                    <a class="btn btn-outline-dark btn-sm" href="{% url 'ProjectDashboard' %}">Manage Project</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
