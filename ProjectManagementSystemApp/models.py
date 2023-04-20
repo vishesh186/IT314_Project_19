@@ -46,3 +46,28 @@ def UpdateEmployee(sender, instance=None, created=False, **kwargs):
                 name=instance.get_full_name(),
                 email=instance.email
             )
+
+class Project(models.Model):
+    projectID = models.SlugField(primary_key=True, max_length=32)
+    title = models.CharField(max_length=64)
+    client = models.CharField(max_length=64)
+    description = models.TextField()
+    budget = models.PositiveIntegerField()
+    deadline = models.DateTimeField()
+    manager = models.EmbeddedField(model_container=Employee, model_form_class=EmployeeForm)
+
+    def __str__(self):
+        return self.name
+    
+
+class Task(models.Model):
+    taskID = models.SlugField(primary_key=True, max_length=32)
+    title = models.CharField(max_length=64)
+    description = models.TextField()
+    deadline = models.DateTimeField(blank=True)
+    completed = models.DateTimeField(blank=True)
+    assigned = models.BooleanField(default=False)
+    assignedTo = models.EmbeddedField(model_container=Employee)
+
+    def __str__(self):
+        return self.title
