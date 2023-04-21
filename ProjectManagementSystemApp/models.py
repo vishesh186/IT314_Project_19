@@ -71,3 +71,24 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+class Resources(models.Model):
+    resourceID = models.SlugField(primary_key=True, max_length=32)
+    title = models.CharField(max_length=64)
+    count = models.IntegerField()
+    availability = models.BooleanField()
+    bookedby = models.EmbeddedField(model_container=Employee, model_form_class=EmployeeForm)
+    bookingfrom = models.DateTimeField()
+    bookingtill = models.DateTimeField()
+
+    def __str__(self):
+        return self.resourceID
+    
+class File(models.Model):
+    fileID = models.SlugField(primary_key=True, max_length=32)
+    filename = models.CharField(max_length=64)
+    uploadedby = models.EmbeddedField(model_container=Employee, model_form_class=EmployeeForm)
+    uploadedat = models.DateTimeField()
+
+    def __str__(self):
+        return self.fileID
