@@ -1,4 +1,9 @@
 from django.shortcuts import render, redirect
+from .models import *
+from django.urls import reverse
+from django.forms.models import model_to_dict
+from django.core.exceptions import PermissionDenied
+from datetime import datetime
 
 # Create your views here.
 
@@ -15,27 +20,77 @@ def Login(request):
 
 
 def CreateProject(request):
-    return render(request, 'createProject.html')
+    # projectManagers = Employee.objects.filter(role='PM')
+    teams = Team.objects.all()
+    if request.method == "POST":
+        timestamp = datetime.now()
+        project = Project(
+            projectID="PRJ"+timestamp.strftime("%d%m%y%H%M%S"),
+            title=request.POST['title'],
+            client=request.POST['client'],
+            description=request.POST['description'],
+            budget=request.POST['budget'],
+            deadline=request.POST['deadline'],
+            team=model_to_dict(teams.get(teamID=request.POST['team']))  
+        )
+        project.save()
+        return redirect('ViewProjects')
+    return render(request, 'createProject.html', {'teams':teams})
+
+
+def ViewProjects(request):
+    # projectManager = Employee.objects.filter(employeeID=request.user.username, role='PM')
+    # if projectManager:
+    #     projectManager = projectManager[0]
+    # else:
+    #     raise PermissionDenied
+   
+    # projects = Project.objects.filter(team__managerID=projectManager.employeeID)
+    projects = Project.objects.all()
+    return render(request, 'viewProjects.html', {'projects':projects})
+
+
+def ProjectDashboard(request, projectID):
+    project = Project.objects.get(projectID=projectID)
+    teamMembers = Employee.objects.filter(team=project.team)
+    inprogressTasks = Task.objects.filter(projectID=projectID, status='I')
+    completedTasks = Task.objects.filter(projectID=projectID, status='C')
+    submittedForReviewTasks = Task.objects.filter(projectID=projectID, status='R')
+    return render(request, 'projectDashboard.html', {'project':project, 'teamMembers':teamMembers, 
+                    'inprogress': inprogressTasks,
+                    'completed':completedTasks,
+                    'review':submittedForReviewTasks})
 
 
 def CreateTeam(request):
     return render(request, 'createTeam.html')
 
 
-def CreateTask(request):
-    return render(request, 'createTask.html')
+def CreateTask(request, projectID):
+    project = Project.objects.get(projectID=projectID)
+    if request.method == "POST":
+        timestamp = datetime.now()
+        assignee = request.POST['assignee'].split('-')
+        print(assignee)
+        task = Task(
+            taskID="TSK"+timestamp.strftime("%d%m%y%H%M%S"),
+            title=request.POST['title'],
+            allocatedBudget=request.POST['budget'],
+            description=request.POST['description'],
+            employeeID=assignee[1],
+            employeeName=assignee[0],
+            deadline=request.POST['deadline'],
+            assigned=timestamp,
+            projectID=projectID,
+            managerID=project.team['managerID'],
+            status='I'
+        )
+        task.save()
+    return redirect(reverse("ProjectDashboard", kwargs={"projectID": projectID}))
 
 
 def SubmitReport(request):
     return render(request, 'submitReport.html')
-
-
-def ViewProjects(request):
-    return render(request, 'viewProjects.html')
-
-
-def ProjectDashboard(request):
-    return render(request, 'projectDashboard.html')
 
 
 def ViewTeams(request):
