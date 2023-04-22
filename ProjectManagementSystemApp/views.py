@@ -106,6 +106,15 @@ def Resources(request):
 
 
 def RequestResource(request):
+    if request.method == "POST":
+        timestamp = datetime.now()
+        resources = Resources(
+            resourceID = "RSC" + timestamp.strftime("%d%m%y%H%M%S"),
+            slot = request.POST['slot'],
+            purpose = request.POST['purpose'],
+        )
+        resources.save()
+        return redirect('ViewResources')
     return render(request, 'requestResource.html')
 
 
