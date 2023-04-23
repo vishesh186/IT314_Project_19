@@ -45,3 +45,14 @@ class viewProjectsAPIViewTests(APITestCase):
         def testTeam(self):
             mer = Team.objects.get(teamID='5050')
             self.assertEqual(mer.getTeamSize(), 10)   
+
+ class LandingAPIViewTests(APITestCase):
+   
+    landing_urls = reverse('Landing')
+
+    def tearDown(self) -> None:
+        pass
+    
+    def test_get_landingPage(self):
+        response = self.client.get(self.landing_urls);
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
