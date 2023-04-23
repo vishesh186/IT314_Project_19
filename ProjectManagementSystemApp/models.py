@@ -33,6 +33,7 @@ class Employee(models.Model):
             ("PM", "Project Manager"),
             ("RM", "Resource Manager"),
             ("E", "Employee"),
+            ("O", "Owner")
         ])
     teamID = models.CharField(null=True, blank=True, max_length=10)
     teamName = models.CharField(blank=True, max_length=64)
@@ -53,6 +54,8 @@ class Employee(models.Model):
 
 @receiver(post_save, sender=User)
 def UpdateEmployee(sender, instance=None, created=False, **kwargs):
+    if instance.is_staff:
+       pass 
     if created:
         Employee.objects.create(
             employeeID=instance.username,
@@ -106,15 +109,17 @@ class Task(models.Model):
     title = models.CharField(max_length=64)
     description = models.TextField()
     deadline = models.DateTimeField(blank=True)
+    submitted = models.DateTimeField(blank=True)
     completed = models.DateTimeField(blank=True)
     assigned = models.DateTimeField()
     allocatedBudget = models.PositiveIntegerField()
     utilizedBudget = models.PositiveIntegerField(null=True, blank=True)
     report = HTMLField(blank=True)
-    employeeID = models.CharField(max_length=10)
+    employeeID = models.SlugField(max_length=10)
     employeeName = models.CharField(max_length=64)
     projectID = models.SlugField(max_length=15)
-    managerID = models.CharField(max_length=10)
+    managerID = models.SlugField(max_length=10)
+    teamID = models.SlugField(max_length=10)
     status = models.CharField(max_length=1, default='I',
         choices=[
             ('I', 'In Progress'),
