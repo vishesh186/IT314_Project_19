@@ -2,20 +2,25 @@ from djongo import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from django.forms import ModelForm
 from tinymce.models import HTMLField
-
+from datetime import datetime
+from django import forms
+from django.forms import ModelForm
 
 # Create your models here.
 
 class Team(models.Model):
-    teamID = models.CharField(primary_key=True, max_length=10)
+    teamID = models.SlugField(primary_key=True, max_length=10)
     name = models.CharField(max_length=64)
+    description = models.TextField(default="")
     managerID = models.CharField(max_length=10)
     managerName = models.CharField(max_length=64)
+    size = models.PositiveSmallIntegerField(default=0)
+    created = models.DateTimeField(blank=True, auto_now_add=True)
 
     def __str__(self):
         return self.teamID
+
 
 class Employee(models.Model):
     employeeID = models.CharField(max_length=10, primary_key=True)
@@ -29,8 +34,10 @@ class Employee(models.Model):
             ("RM", "Resource Manager"),
             ("E", "Employee"),
         ])
-    team = models.EmbeddedField(null=True, blank=True, model_container=Team)
-    objects = models.DjongoManager()
+    teamID = models.CharField(null=True, blank=True, max_length=10)
+    teamName = models.CharField(blank=True, max_length=64)
+    managerID = models.CharField(null=True, blank=True, max_length=10)
+    managerName = models.CharField(blank=True, max_length=64)
 
     def __str__(self):
         return self.employeeID
@@ -40,6 +47,7 @@ class Employee(models.Model):
             return (self.salary)*0.15;
         else:
             return (self.salary)*0.10;
+
 
 
 
@@ -66,17 +74,31 @@ def UpdateEmployee(sender, instance=None, created=False, **kwargs):
             )
     
 
+
 class Project(models.Model):
     projectID = models.SlugField(primary_key=True, max_length=15)
     title = models.CharField(max_length=64)
     client = models.CharField(max_length=64)
     description = models.TextField()
-    budget = models.PositiveIntegerField()
+    allocatedBudget = models.PositiveIntegerField(blank=True)
+    utilizedBudget = models.PositiveIntegerField(blank=True, default=0)
     deadline = models.DateTimeField()
-    team = models.EmbeddedField(model_container=Team, null=True)
+    created = models.DateTimeField(default=datetime.now())
+    completed = models.DateTimeField(blank=True)
+    status = models.CharField(max_length=1, default='O',
+        choices=[
+            ('O', 'Ongoing'),
+            ('C', 'Completed'),
+    ])
+    
+    teamID = models.CharField(blank=True, max_length=10)
+    teamName = models.CharField(blank=True, max_length=64)
+    managerID = models.CharField(blank=True, max_length=10)
+    managerName = models.CharField(blank=True, max_length=64)
 
     def __str__(self):
         return self.projectID
+    
     
 
 class Task(models.Model):
@@ -104,23 +126,8 @@ class Task(models.Model):
         return self.taskID
     
 
-class Resources(models.Model):
-    resourceID = models.SlugField(primary_key=True, max_length=32)
-    title = models.CharField(max_length=64)
-    count = models.IntegerField()
-    availability = models.BooleanField()
-    bookedby = models.EmbeddedField(model_container=Employee, model_form_class=EmployeeForm)
-    bookingfrom = models.DateTimeField()
-    bookingtill = models.DateTimeField()
 
-    def __str__(self):
-        return self.resourceID
-    
-class File(models.Model):
-    fileID = models.SlugField(primary_key=True, max_length=32)
-    filename = models.CharField(max_length=64)
-    uploadedby = models.EmbeddedField(model_container=Employee, model_form_class=EmployeeForm)
-    uploadedat = models.DateTimeField()
-
-    def __str__(self):
-        return self.fileID
+class ReportForm(ModelForm):
+    class Meta:
+        model = Task
+        fields = ['report', 'utilizedBudget']
