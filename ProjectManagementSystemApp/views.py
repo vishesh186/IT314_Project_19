@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from .models import *
 from django.urls import reverse
-from django.forms.models import model_to_dict
 from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 
 # Create your views here.
@@ -19,40 +19,41 @@ def Login(request):
     return render(request, 'login.html')
 
 
+# Only for Admin/Owner
 def CreateProject(request):
     # projectManagers = Employee.objects.filter(role='PM')
     teams = Team.objects.all()
     if request.method == "POST":
         timestamp = datetime.now()
+        team = teams.get(teamID=request.POST['team'])
         project = Project(
             projectID="PRJ"+timestamp.strftime("%d%m%y%H%M%S"),
             title=request.POST['title'],
             client=request.POST['client'],
             description=request.POST['description'],
-            budget=request.POST['budget'],
+            allocatedBudget=request.POST['budget'],
             deadline=request.POST['deadline'],
-            team=model_to_dict(teams.get(teamID=request.POST['team']))  
+            teamID=team.teamID,
+            teamName=team.name,
+            managerID=team.managerID,
+            managerName=team.managerName,
+            status='O'
         )
         project.save()
         return redirect('ViewProjects')
     return render(request, 'createProject.html', {'teams':teams})
 
 
+# As per employee type. PM, RM, E(Team-wise), Owner (All)  
 def ViewProjects(request):
-    # projectManager = Employee.objects.filter(employeeID=request.user.username, role='PM')
-    # if projectManager:
-    #     projectManager = projectManager[0]
-    # else:
-    #     raise PermissionDenied
-   
-    # projects = Project.objects.filter(team__managerID=projectManager.employeeID)
-    projects = Project.objects.all()
-    return render(request, 'viewProjects.html', {'projects':projects})
+    ongoingProjects = Project.objects.filter(status='O')
+    completedProjects = Project.objects.filter(status='C')
+    return render(request, 'viewProjects.html', {'ongoingProjects':ongoingProjects, 'completedProjects':completedProjects})
 
 
 def ProjectDashboard(request, projectID):
     project = Project.objects.get(projectID=projectID)
-    teamMembers = Employee.objects.filter(team=project.team)
+    teamMembers = Employee.objects.filter(teamID=project.teamID)
     inprogressTasks = Task.objects.filter(projectID=projectID, status='I')
     completedTasks = Task.objects.filter(projectID=projectID, status='C')
     submittedForReviewTasks = Task.objects.filter(projectID=projectID, status='R')
@@ -62,16 +63,14 @@ def ProjectDashboard(request, projectID):
                     'review':submittedForReviewTasks})
 
 
-def CreateTeam(request):
-    return render(request, 'createTeam.html')
-
-
 def CreateTask(request, projectID):
-    project = Project.objects.get(projectID=projectID)
+    try: 
+        project = Project.objects.get(projectID=projectID)
+    except:
+        raise ObjectDoesNotExist
     if request.method == "POST":
         timestamp = datetime.now()
         assignee = request.POST['assignee'].split('-')
-        print(assignee)
         task = Task(
             taskID="TSK"+timestamp.strftime("%d%m%y%H%M%S"),
             title=request.POST['title'],
@@ -82,23 +81,100 @@ def CreateTask(request, projectID):
             deadline=request.POST['deadline'],
             assigned=timestamp,
             projectID=projectID,
-            managerID=project.team['managerID'],
+            managerID=project.managerID,
             status='I'
         )
         task.save()
     return redirect(reverse("ProjectDashboard", kwargs={"projectID": projectID}))
 
 
-def SubmitReport(request):
-    return render(request, 'submitReport.html')
+def TaskDashboard(request, taskID):
+    task = Task.objects.get(taskID=taskID)
+    reportForm = ReportForm(instance=task)
+    if request.method == "POST":
+        reportForm = ReportForm(request.POST, instance=task)
+        if reportForm.is_valid():
+            task = reportForm.save()
+            task.status = 'R'
+            task.completed = datetime.now()
+            task.save()
+            return redirect(reverse("ProjectDashboard", kwargs={"projectID":task.projectID}))
+    return render(request, 'taskDashboard.html', {'form': reportForm, 'task':task})
 
 
-def ViewTeams(request):
-    return render(request, 'viewTeams.html')
+def CreateTeam(request):
+    if request.method == "POST":
+        manager = request.POST['manager'].split('-')
+
+        if request.POST['teamID']:
+            team = Team.objects.get(teamID=request.POST['teamID'])
+            team.name = request.POST['name']
+            team.description = request.POST['description']
+            team.managerID = manager[1]
+            team.managerName = manager[0]
+            team.save()
+            return redirect(reverse("TeamDashboard", kwargs={"teamID": team.teamID}))
+
+        timestamp = datetime.now()
+        while Team.objects.filter(teamID="T"+timestamp.strftime("%H%M%S")):
+            timestamp = datetime.now()
+
+        team = Team(
+            teamID="T"+timestamp.strftime("%H%M%S"),
+            name=request.POST['name'],
+            managerID=manager[1],
+            managerName=manager[0],
+            description=request.POST['description'],
+        )
+        team.save()
+    return redirect("ManageTeams")
 
 
-def TeamDashboard(request):
-    return render(request, 'teamDashboard.html')
+def ManageTeams(request):
+    teams = Team.objects.all()
+    managers = Employee.objects.filter(role='PM')
+    return render(request, 'manageTeams.html', {'teams':teams, 'managers':managers})
+
+
+def TeamDashboard(request, teamID):
+    try: 
+        team = Team.objects.get(teamID=teamID)
+    except:
+        raise ObjectDoesNotExist
+    managers = Employee.objects.filter(role='PM')
+    members = Employee.objects.filter(teamID=teamID, role='E')
+    ongoingProjects = Project.objects.filter(teamID=teamID, status='O')
+    completedProjects = Project.objects.filter(teamID=teamID, status='C')
+    freeEmployees = Employee.objects.filter(teamID__isnull=True, role='E')
+    return render(request, 'teamDashboard.html', {'team':team, 'managers':managers, 'members':members, 'freeEmployees':freeEmployees, 
+                 'teamProjects':[("ongoing", "info", ongoingProjects),
+                                 ("completed", "success", completedProjects)]})
+
+
+def EditMembers(request, teamID):
+    if request.method == "POST":
+        if request.POST['type'] == 'add':
+            toBeAdded = list(request.POST.keys())
+            freeEmployees = Employee.objects.filter(teamID__isnull=True, role='E')
+            for freeEmployee in freeEmployees:
+                if freeEmployee.employeeID in toBeAdded:
+                    freeEmployee.teamID = request.POST['teamID']
+                    freeEmployee.teamName = request.POST['teamName']
+                    freeEmployee.managerID = request.POST['managerID']
+                    freeEmployee.managerName = request.POST['managerName']
+                    freeEmployee.save()
+        else:
+            toBeRemoved = list(request.POST.keys())
+            teamMembers = Employee.objects.filter(teamID=teamID, role='E')
+            for teamMember in teamMembers:
+                if teamMember.employeeID in toBeRemoved:
+                    teamMember.teamID = None
+                    teamMember.teamName = ""
+                    teamMember.managerID = None
+                    teamMember.managerName = ""
+                    teamMember.save()
+    
+    return redirect(reverse("TeamDashboard", kwargs={"teamID": teamID}))
 
 
 def Resources(request):
@@ -106,15 +182,6 @@ def Resources(request):
 
 
 def RequestResource(request):
-    if request.method == "POST":
-        timestamp = datetime.now()
-        resources = Resources(
-            resourceID = "RSC" + timestamp.strftime("%d%m%y%H%M%S"),
-            slot = request.POST['slot'],
-            purpose = request.POST['purpose'],
-        )
-        resources.save()
-        return redirect('ViewResources')
     return render(request, 'requestResource.html')
 
 
