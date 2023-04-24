@@ -99,4 +99,38 @@ class UnitTesting(TestCase):
 
         objs = Employee.objects.all()
 
-        self.assertEquals(objs.count(), 2)      
+        self.assertEquals(objs.count(), 2)  
+        
+        
+class CreateProjectTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.team = Team.objects.create(
+            name='Test Team',
+            managerName='Test Manager',
+            managerID='123',
+        )
+
+    def test_create_project(self):
+        url = '/create-project/'
+        data = {
+            'title': 'Test Project',
+            'client': 'Test Client',
+            'description': 'Test Description',
+            'budget': 10000,
+            'deadline': '2023-05-01',
+            'teamID': self.team.teamID,
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)  # redirect status code
+        project = Project.objects.first()
+        self.assertEqual(project.title, 'Test Project')
+        self.assertEqual(project.client, 'Test Client')
+        self.assertEqual(project.description, 'Test Description')
+        self.assertEqual(project.allocatedBudget, 10000)
+        self.assertEqual(project.deadline.strftime('%Y-%m-%d'), '2023-05-01')
+        self.assertEqual(project.teamID, self.team.teamID)
+        self.assertEqual(project.teamName, 'Test Team')
+        self.assertEqual(project.managerID, '123')
+        self.assertEqual(project.managerName, 'Test Manager')
+        self.assertEqual(project.status, 'O')
