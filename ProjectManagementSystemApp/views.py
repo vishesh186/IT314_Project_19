@@ -357,13 +357,71 @@ def TaskDashboard(request, taskID):
 
 
 
-def Resources(request):
-    return render(request, 'viewResources.html')
+@login_required
+def CreateResource(request):
+    userRole = request.session['employee']['role']
+    if userRole != 'O' and userRole != 'RM':
+        raise PermissionDenied
+    
+    if request.method == "POST":
+        timestamp = datetime.now()
+        while Resource.objects.filter(resourceID="R"+timestamp.strftime("%H%M%S")):
+            timestamp = datetime.now()
+
+        resource = Resource(
+            resourceID="R"+timestamp.strftime("%H%M%S"),
+            name=request.POST['name'],
+            created=timestamp
+        )
+        resource.save()
+    return redirect("Resources")
 
 
-def RequestResource(request):
-    return render(request, 'requestResource.html')
+def RequestResource(request, resourceID):
+    userRole = request.session['employee']['role']
+    if userRole != 'O' and userRole != 'PM' and userRole != 'E':
+        raise PermissionDenied
+        
+    try:
+        resource = Resource.objects.get(resourceID=resourceID)
+    except:
+        ObjectDoesNotExist
+
+    teams = None
+    if userRole == 'PM':
+        teams = Team.objects.filter(managerID=request.session['employee']['employeeID'])
+
+    if request.method == "POST":
+        resource.status = 'P'
+        resource.bookingPurpose = request.POST['purpose']
+        resource.bookingType = request.POST['bookingType']
+        if resource.bookingType == 'EM':
+            resource.bookedByID = request.session['employee']['employeeID']
+            resource.bookedByName = request.session['employee']['name']
+        else:
+            resource.bookedByID = request.session['employee']['teamID']
+            resource.bookedByName = request.session['employee']['teamName']
+        resource.bookedFrom = request.POST['from']
+        resource.bookedTill = request.POST['till']
+        resource.save()
+
+        return redirect('Resources')
+
+    return render(request, 'resource/requestResource.html', {'resource':resource, 'teams':teams})
+
 
 
 def ManageResources(request):
-    return render(request, 'manageResources.html')
+    availableResources = Resource.objects.filter(status='A')
+    pendingResources = Resource.objects.filter(status='P')
+    unavailableResources = Resource.objects.filter(status='U')
+    yourResources = Resource.objects.filter(
+        Q(bookedByID=request.session['employee']['employeeID']) | 
+        Q(bookedByID=request.session['employee']['teamID']))
+    
+    return render(request, 'resource/manageResources.html',
+            {'availableResources':availableResources,
+                'unavailableResources':unavailableResources,
+                'pendingResources':pendingResources,
+                'yourResources':yourResources,
+            })
