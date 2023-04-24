@@ -134,3 +134,38 @@ class CreateProjectTest(TestCase):
         self.assertEqual(project.managerID, '123')
         self.assertEqual(project.managerName, 'Test Manager')
         self.assertEqual(project.status, 'O')
+
+class CreateTaskViewTest(TestCase):
+    def setUp(self):
+        self.project = Project.objects.create(
+            projectID="1234",
+            title="Test Project",
+            managerID="MGR01",
+            description="Test description"
+        )
+
+    def test_create_task(self):
+        url = reverse('CreateTask')
+        data = {
+            'value':'1234',
+            'title': 'Test Task',
+            'budget': 100,
+            'description': 'Test task description',
+            'assignee': 'John Doe-MGR01',
+            'deadline': datetime.now().strftime("%Y-%m-%d"),
+        }
+        response = self.client.post(url, data)
+        print(response.status_code)    
+        self.assertEqual(response.status_code, 302)  # expect a redirect
+        self.assertEqual(Task.objects.count(), 1)  # expect a new task to be created
+
+        task = Task.objects.first()
+        self.assertEqual(task.title, data['title'])
+        self.assertEqual(task.allocatedBudget, data['budget'])
+        self.assertEqual(task.description, data['description'])
+        self.assertEqual(task.employeeName, 'John Doe')
+        self.assertEqual(task.employeeID, 'MGR01')
+        self.assertEqual(task.deadline.strftime("%Y-%m-%d"), data['deadline'])
+        self.assertEqual(task.projectID, self.project.projectID)
+        self.assertEqual(task.managerID, self.project.managerID)
+        self.assertEqual(task.status, 'I')
