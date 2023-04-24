@@ -132,7 +132,21 @@ class Task(models.Model):
     
 
 
-class ReportForm(ModelForm):
-    class Meta:
-        model = Task
-        fields = ['report', 'utilizedBudget']
+class Resource(models.Model):
+    resourceID = models.SlugField(primary_key=True, max_length=10)
+    name = models.CharField(max_length=64)
+    status = models.CharField(max_length=1, default='A', 
+        choices=[('A', 'Available'), ('P', 'Request Pending'), ('U', 'Unavailable')])
+    bookingPurpose = models.TextField(blank=True)
+    bookingType = models.CharField(blank=True, max_length=2,
+        choices=[('EM', 'Employee'), ('TM', 'Team')]
+    )
+    bookedByID = models.SlugField(blank=True, max_length=10)
+    bookedByName = models.CharField(blank=True, max_length=64)
+    bookedFrom = models.DateTimeField(blank=True)
+    bookedTill = models.DateTimeField(blank=True)
+    created = models.DateTimeField(blank=True)
+
+
+    def __str__(self):
+        return self.resourceID
