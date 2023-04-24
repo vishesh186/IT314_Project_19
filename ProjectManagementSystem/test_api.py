@@ -169,3 +169,23 @@ class CreateTaskViewTest(TestCase):
         self.assertEqual(task.projectID, self.project.projectID)
         self.assertEqual(task.managerID, self.project.managerID)
         self.assertEqual(task.status, 'I')
+
+        
+class ProjectTestCase(APITestCase):
+
+    def tearDown(self) -> None:
+        pass
+
+    def setUp(self) -> None:
+        obj = Project.objects.create (
+            projectID = '4363',title = 'Test Project',client = 'demo client',description = 'demo project',
+            allocatedBudget = '200000',status = 'O',deadline = datetime.datetime(2023, 5, 1, 23, 59, 59, tzinfo=datetime.timezone.utc))
+        
+
+    def test_project(self):
+        obj = Project.objects.get(projectID = '4363')
+        self.assertEqual(obj.allocatedBudget , 200000)
+        self.assertEqual(obj.deadline,datetime.datetime(2023, 5, 1, 23, 59, 59, tzinfo=datetime.timezone.utc))
+        self.assertEqual(obj.status,'O')
+        self.assertGreaterEqual(obj.deadline,datetime.datetime(2023,4, 1, 23, 59, 59, tzinfo=datetime.timezone.utc)) 
+        # second argument is actual completion time of project and first argument is given deadline for project
