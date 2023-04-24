@@ -56,3 +56,47 @@ class viewProjectsAPIViewTests(APITestCase):
     def test_get_landingPage(self):
         response = self.client.get(self.landing_urls);
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        
+  
+class UnitTesting(TestCase):
+
+    def setUp(self) -> None:
+        print('setup called')
+
+    def test_employee_email(self):
+
+        emails = ["kashaypsojitra30@gmail.com",
+                  "iammaher@gmail.com"]
+
+        employee1 = Employee.objects.create(
+            employeeID="EMP001",
+            name="John Doe",
+            email=emails[0],
+            joiningDate=Date(2020, 1, 1),
+            salary=50000,
+            role="E",
+            teamID="TEAM001",
+            teamName="Engineering",
+            managerID="MAN001",
+            managerName="Jane Smith"
+        )
+        employee2 = Employee.objects.create(
+            employeeID="EMP002",
+            name="ron Doe",
+            email=emails[1],
+            joiningDate=Date(2020, 3, 12),
+            salary=50000,
+            role="M",
+            teamID="TEAM005",
+            teamName="Managering",
+            managerID="MAN005",
+            managerName="Jane watson"
+        )
+        self.assertEquals("kashaypsojitra30@gmail.com", employee1.email)
+
+        self.assertEquals("iammaher@gmail.com", employee2.email)
+
+        objs = Employee.objects.all()
+
+        self.assertEquals(objs.count(), 2)      
