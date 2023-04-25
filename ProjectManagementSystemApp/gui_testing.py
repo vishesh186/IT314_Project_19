@@ -96,3 +96,43 @@ def test_view_Resources_employee():
 
     # Close the browser
     driver.close()
+
+def test_view_task_manager():
+    driver = webdriver.Chrome()
+
+    driver.maximize_window()
+    driver.get("http://127.0.0.1:8000/login/")
+
+    # Find the username input element and enter a value
+    username_input = driver.find_element(By.NAME, "username")
+    username_input.clear()
+    username_input.send_keys("000003")
+
+    # Find the password input element and enter a value
+    password_input = driver.find_element(By.NAME, "password")
+    password_input.clear()
+    password_input.send_keys("pass")
+    password_input.send_keys(Keys.RETURN)
+
+
+    manage = driver.find_element(By.XPATH,'/html/body/header/nav[1]/div/div/a[1]')
+    manage.click()
+
+    project = driver.find_element(By.XPATH, '/html/body/main/div/div/div[2]/div/div[1]/div[1]/div/div[2]/a')
+    project.click()
+
+    mt = driver.find_element(By.XPATH, '/html/body/main/div/div/div[2]/ul/li[1]/a')
+    mt.click()
+
+    bt = driver.find_element(By.XPATH, '/html/body/main/div/div/div[2]/ul/li[1]/ul/li[1]/button')
+    bt.click()
+
+    view = driver.find_element(By.XPATH, '/html/body/main/div/div/div[2]/div[2]/div[1]/div/div[2]/div[1]/div/div[2]/div[2]/a')
+    view.click()
+
+    # Verify that task view for manager is displayed
+    txt = driver.find_element(By.XPATH,"/html/body/main/div/div/div[1]/h3").text
+    assert txt == "TSK230423191601 : Task 004"
+
+    # Close the browser
+    driver.close()
