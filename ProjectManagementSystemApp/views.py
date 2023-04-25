@@ -4,21 +4,34 @@ from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, authenticate, login
 from django.forms.models import model_to_dict
+from django.views.decorators.cache import cache_control
+from django.contrib import messages
+import pytz
+
+
+utc = pytz.UTC
 
 
 # Create your views here.
-
-
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def Landing(request):
     if request.user.is_authenticated:
-        return redirect('ViewProjects')
+        if request.session['employee']['role'] == 'RM':
+            return redirect('Resources')
+        else:
+            return redirect('ViewProjects')
+        
     return render(request, 'landing.html')
 
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def Login(request):
+    if request.user.is_authenticated:
+        return redirect('Landing')
     if request.method == "POST":
         user = authenticate(username=request.POST['username'], password=request.POST['password'])
         if user is not None:
@@ -27,10 +40,12 @@ def Login(request):
             employee['joiningDate'] = employee['joiningDate'].strftime("%d-%m-%Y")
             request.session['employee'] = employee
             login(request, user)
-            return redirect('ViewProjects')
+            return redirect('Landing')
         else:
+            messages.error(request, "Invalid employee ID or password. Please try again.")
             return redirect('Login')
     return render(request, 'login.html')
+
 
 def Logout(request):
     request.session.flush()
@@ -54,6 +69,7 @@ def CreateTeam(request):
             team.managerID = manager[1]
             team.managerName = manager[0]
             team.save()
+            messages.success(request, team.teamID + ' : Team Updated Successfully.')
             return redirect(reverse("TeamDashboard", kwargs={"teamID": team.teamID}))
 
         timestamp = datetime.now()
@@ -68,6 +84,8 @@ def CreateTeam(request):
             description=request.POST['description'],
         )
         team.save()
+        messages.success(request, 'New Team Created Successfully.')
+
     return redirect("ManageTeams")
 
 
@@ -76,10 +94,10 @@ def CreateTeam(request):
 @login_required
 def ManageTeams(request):
     userRole = request.session['employee']['role']
-    if userRole != 'O' and userRole != 'PM':
+    if userRole != 'O' and userRole != 'PM' and userRole != 'RM':
         raise PermissionDenied
 
-    if userRole == 'O':
+    if userRole == 'O' or userRole == 'RM':
         teams = Team.objects.all()
     else:
         teams = Team.objects.filter(managerID=request.session['employee']['employeeID'])
@@ -157,6 +175,8 @@ def EditMembers(request, teamID):
                     count = count + 1
             team.size = team.size - count
             team.save()
+        messages.success(request, 'Team updated successfully.')
+
     
     return redirect(reverse("TeamDashboard", kwargs={"teamID": teamID}))
 
@@ -185,6 +205,7 @@ def CreateProject(request):
             status='O'
         )
         project.save()
+        messages.success(request, 'Project Created Successfully.')
         return redirect('ViewProjects')
     return render(request, 'project/createProject.html', {'teams':teams})
 
@@ -206,11 +227,13 @@ def EditProject(request, projectID):
         project.description = request.POST['description']
         project.allocatedBudget = request.POST['budget']
         project.deadline = request.POST['deadline']
-        project.teamID = team.teamID,
-        project.teamName = team.name,
-        project.managerID = team.managerID,
-        project.managerName = team.managerName,
+        project.teamID = team.teamID
+        project.teamName = team.name
+        project.managerID = team.managerID
+        project.managerName = team.managerName
         project.save()
+        messages.success(request, project.projectID + ' : Project Edited Successfully.')
+
         return redirect('ViewProjects')
     return render(request, 'project/createProject.html', {'teams':teams, 'project':project})
 
@@ -218,6 +241,7 @@ def EditProject(request, projectID):
 
 # As per employee type. PM, RM, E(Team-wise), Owner (All)  
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def ViewProjects(request):
     userRole = request.session['employee']['role']
     if userRole != 'O' and userRole != 'PM' and userRole != 'E':
@@ -255,17 +279,27 @@ def ProjectDashboard(request, projectID):
 
     teamMembers = Employee.objects.filter(role='E', teamID=project.teamID)
 
-    if userRole == 'O' or userRole == 'PM':
-        inprogressTasks = Task.objects.filter(projectID=projectID, status='I')
-        completedTasks = Task.objects.filter(projectID=projectID, status='C')
-        submittedForReviewTasks = Task.objects.filter(projectID=projectID, status='R')
-    else:
-        employeeID = request.session['employee']['employeeID']
-        inprogressTasks = Task.objects.filter(projectID=projectID, status='I', employeeID=employeeID)
-        completedTasks = Task.objects.filter(projectID=projectID, status='C', employeeID=employeeID)
-        submittedForReviewTasks = Task.objects.filter(projectID=projectID, status='R', employeeID=employeeID)
+    inprogressTasks = Task.objects.filter(projectID=projectID, status='I')
+    completedTasks = Task.objects.filter(projectID=projectID, status='C')
+    submittedForReviewTasks = Task.objects.filter(projectID=projectID, status='R')
+    
+    tasksByStatus = None
+    totalTasks = inprogressTasks.count() + completedTasks.count() + submittedForReviewTasks.count()
+    completionPercentage = None
 
+    if userRole == 'E':
+        employeeID = request.session['employee']['employeeID']
+        inprogressTasks = inprogressTasks.filter(projectID=projectID, status='I', employeeID=employeeID)
+        completedTasks = completedTasks.filter(projectID=projectID, status='C', employeeID=employeeID)
+        submittedForReviewTasks = submittedForReviewTasks.filter(projectID=projectID, status='R', employeeID=employeeID)
+    else:
+        tasksByStatus = [len(x) for x in [inprogressTasks, submittedForReviewTasks, completedTasks]]
+        if sum(tasksByStatus):
+            completionPercentage = 100 *( tasksByStatus[-1]/sum(tasksByStatus))
+        
+    
     return render(request, 'project/projectDashboard.html', {'project':project, 'teamMembers':teamMembers, 
+                    'tasksByStatus' : tasksByStatus, 'completionPercentage': completionPercentage, 'totalTasks': totalTasks,
                     'inprogress': inprogressTasks,
                     'completed':completedTasks,
                     'review':submittedForReviewTasks})
@@ -297,6 +331,7 @@ def CreateTask(request, projectID):
             task.employeeID = assignee[1]
             task.employeeName = assignee[0]
             task.save()
+            messages.success(request, 'Task updated successfully.')
             return redirect(reverse("TaskDashboard", kwargs={"taskID": task.taskID}))
         
         timestamp = datetime.now()        
@@ -315,7 +350,10 @@ def CreateTask(request, projectID):
             status='I'
         )
         task.save()
+        messages.success(request, 'Task '+ task.taskID + ' created successfully.')
+
     return redirect(reverse("ProjectDashboard", kwargs={"projectID": projectID}))
+
 
 
 @login_required
@@ -325,6 +363,7 @@ def TaskDashboard(request, taskID):
     except:
         raise ObjectDoesNotExist
     
+    # Access only to Owner, Project Manger or Employee
     userRole = request.session['employee']['role']
     if userRole != 'O' and userRole != 'PM' and userRole != 'E':
         raise PermissionDenied
@@ -342,20 +381,39 @@ def TaskDashboard(request, taskID):
             if request.session['employee']['employeeID'] != task.managerID:
                 raise PermissionDenied
             task.status = 'C'
-            task.completed = datetime.now()
+            task.completed = timezone.now()
+            print(request.POST)
+            task.rating = request.POST.get('rating', '')
             task.save()
+            # Update employee rating
+            employee = Employee.objects.get(employeeID=task.employeeID)
+            employee.updateRating()
+            employee.save()
+            # Update project budget
+            project = Project.objects.get(projectID=task.projectID)
+            project.utilizedBudget += task.utilizedBudget
+
+            if (task.deadline) < (task.completed):
+                project.overdeadlingTasks += 1
+            
+            if task.utilizedBudget < task.allocatedBudget:
+                project.overbudgetTasks += 1
+            
+            project.completedTasks += 1
+            project.save()
+            messages.success(request, task.taskID + ' : Task Report Approved.')
             return redirect(reverse("ProjectDashboard", kwargs={"projectID":task.projectID}))
 
         reportForm = ReportForm(request.POST, instance=task)
         if reportForm.is_valid():
+            # Task submission
             task = reportForm.save()
             task.status = 'R'
             task.submitted = datetime.now()
             task.save()
+            messages.success(request, task.taskID + ' : Task Report Rejected.')
             return redirect(reverse("ProjectDashboard", kwargs={"projectID":task.projectID}))
     return render(request, 'task/taskDashboard.html', {'form': reportForm, 'task':task, 'teamMembers':teamMembers})
-
-
 
 @login_required
 def CreateResource(request):
