@@ -190,7 +190,7 @@ class ProjectTestCase(APITestCase):
         self.assertGreaterEqual(obj.deadline,datetime.datetime(2023,4, 1, 23, 59, 59, tzinfo=datetime.timezone.utc)) 
         # second argument is actual completion time of project and first argument is given deadline for project
 
-        
+ 
  class ResourceTestcase(TestCase):
     
     def setUp(self) -> None:
