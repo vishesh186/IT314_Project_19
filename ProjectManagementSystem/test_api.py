@@ -189,3 +189,17 @@ class ProjectTestCase(APITestCase):
         self.assertEqual(obj.status,'O')
         self.assertGreaterEqual(obj.deadline,datetime.datetime(2023,4, 1, 23, 59, 59, tzinfo=datetime.timezone.utc)) 
         # second argument is actual completion time of project and first argument is given deadline for project
+
+        
+ class ResourceTestcase(TestCase):
+    
+    def setUp(self) -> None:
+        elon = Employee.objects.create(employeeID='001', name='Elon Musk', email='elon@musk.com', salary=100000, role='E')
+        obj = Resource.objects.create (
+            resourceID = '5232',name = 'Room 1',status = 'A',bookingType = 'EM',bookedByID='001',bookedByName='Elon Musk')
+        
+    def test_resource(self):
+        obj = Resource.objects.get(resourceID = '5232')
+        elon = Employee.objects.get(employeeID = obj.bookedByID) 
+        self.assertEqual(elon.role,'E')  #it will check if the employee who has booked is employee or not
+        self.assertEqual(obj.status,'A')
