@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from tinymce.models import HTMLField
 from datetime import datetime
-from django import forms
+from django.db.models import Avg
 from django.forms import ModelForm
 
 # Create your models here.
@@ -20,6 +20,40 @@ class Team(models.Model):
 
     def __str__(self):
         return self.teamID
+
+
+class Task(models.Model):
+    taskID = models.SlugField(primary_key=True, max_length=32)
+    title = models.CharField(max_length=64)
+    description = models.TextField()
+    deadline = models.DateTimeField(blank=True)
+    submitted = models.DateTimeField(blank=True)
+    completed = models.DateTimeField(blank=True)
+    assigned = models.DateTimeField()
+    allocatedBudget = models.PositiveIntegerField()
+    utilizedBudget = models.PositiveIntegerField(null=True, blank=True)
+    report = HTMLField(blank=True)
+    employeeID = models.SlugField(max_length=10)
+    employeeName = models.CharField(max_length=64)
+    projectID = models.SlugField(max_length=15)
+    managerID = models.SlugField(max_length=10)
+    teamID = models.SlugField(max_length=10)
+    status = models.CharField(max_length=1, default='I',
+        choices=[
+            ('I', 'In Progress'),
+            ('C', 'Completed'),
+            ('R', 'Submitted For Review')
+    ])
+    rating = models.PositiveSmallIntegerField(blank=True)
+ 
+    def __str__(self):
+        return self.taskID
+    
+class ReportForm(ModelForm):
+    class Meta:
+        model = Task
+        fields = ['report', 'utilizedBudget']
+
 
 
 class Employee(models.Model):
@@ -39,6 +73,7 @@ class Employee(models.Model):
     teamName = models.CharField(blank=True, max_length=64)
     managerID = models.CharField(null=True, blank=True, max_length=10)
     managerName = models.CharField(blank=True, max_length=64)
+    avgRating = models.FloatField(blank=True)
 
     def __str__(self):
         return self.employeeID
@@ -49,7 +84,12 @@ class Employee(models.Model):
         else:
             return (self.salary)*0.10;
 
-
+    def updateRating(self):
+        if self.role == 'E':
+            tasks = Task.objects.filter(employeeID=self.employeeID).aggregate(Avg("rating"))
+            self.avgRating = tasks['rating__avg']
+        else:
+            pass
 
 
 @receiver(post_save, sender=User)
@@ -98,53 +138,30 @@ class Project(models.Model):
     teamName = models.CharField(blank=True, max_length=64)
     managerID = models.CharField(blank=True, max_length=10)
     managerName = models.CharField(blank=True, max_length=64)
+    
+    overbudgetTasks = models.PositiveSmallIntegerField(default=0)
+    overdeadlineTasks = models.PositiveSmallIntegerField(default=0)
 
+    completedTasks = models.PositiveSmallIntegerField(default=0)
+    
     def __str__(self):
         return self.projectID
     
     
 
-class Task(models.Model):
-    taskID = models.SlugField(primary_key=True, max_length=32)
-    title = models.CharField(max_length=64)
-    description = models.TextField()
-    deadline = models.DateTimeField(blank=True)
-    submitted = models.DateTimeField(blank=True)
-    completed = models.DateTimeField(blank=True)
-    assigned = models.DateTimeField()
-    allocatedBudget = models.PositiveIntegerField()
-    utilizedBudget = models.PositiveIntegerField(null=True, blank=True)
-    report = HTMLField(blank=True)
-    employeeID = models.SlugField(max_length=10)
-    employeeName = models.CharField(max_length=64)
-    projectID = models.SlugField(max_length=15)
-    managerID = models.SlugField(max_length=10)
-    teamID = models.SlugField(max_length=10)
-    status = models.CharField(max_length=1, default='I',
-        choices=[
-            ('I', 'In Progress'),
-            ('C', 'Completed'),
-            ('R', 'Submitted For Review')
-    ])
- 
-    def __str__(self):
-        return self.taskID
-    
-
-
 class Resource(models.Model):
     resourceID = models.SlugField(primary_key=True, max_length=10)
     name = models.CharField(max_length=64)
     status = models.CharField(max_length=1, default='A', 
-        choices=[('A', 'Available'), ('P', 'Request Pending'), ('U', 'Unavailable')])
-    bookingPurpose = models.TextField(blank=True)
-    bookingType = models.CharField(blank=True, max_length=2,
+        choices=[('A', 'Available'), ('P', 'Request Pending'), ('B', 'Booked')])
+    bookingPurpose = models.TextField(blank=True, null=True)
+    bookingType = models.CharField(blank=True, max_length=2, null=True,
         choices=[('EM', 'Employee'), ('TM', 'Team')]
     )
-    bookedByID = models.SlugField(blank=True, max_length=10)
-    bookedByName = models.CharField(blank=True, max_length=64)
-    bookedFrom = models.DateTimeField(blank=True)
-    bookedTill = models.DateTimeField(blank=True)
+    bookedByID = models.SlugField(blank=True, max_length=10, null=True)
+    bookedByName = models.CharField(blank=True, max_length=64, null=True)
+    bookedFrom = models.DateTimeField(blank=True, null=True)
+    bookedTill = models.DateTimeField(blank=True, null=True)
     created = models.DateTimeField(blank=True)
 
 
