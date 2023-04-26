@@ -26,9 +26,9 @@
     width: 100%;
   }
 }
-.sidebar .active {
+/* .sidebar .active {
   box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
-}
+} */
 </style>
 
 <html lang="en">
@@ -46,47 +46,81 @@
 
         <header>
           <!-- Sidebar -->
-          <nav id="navbarNav" class="pt-5 collapse show collapse-horizontal sidebar bg-white navbar-collapse border border-right">
+          <nav id="navbarNav" style="z-index: 1025" class="pt-5 collapse show collapse-horizontal sidebar bg-white navbar-collapse border border-right">
             <div class="position-sticky">
-              <div class="list-group list-group-flush mx-3 mt-4">
 
-                <a href="{% url 'ViewTeams' %}"
+              <div class="list-group list-group-flush mx-3 mt-2">
+                <div class="row justify-content-center my-3">
+                  <div class="text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                      <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                    </svg>       
+                  </div>
+                  <div class="fw-semibold text-center">
+                    {{request.session.employee.name}}
+                  </div>
+                  <div class="text-muted text-center mb-2">
+                    {{request.session.employee.employeeID}}
+                  </div>
+                  <div class="text-center ">
+                    <a href="{% url 'Logout' %}"
+                        class="btn btn-outline-danger btn-sm">
+                        Logout
+                    </a>
+                  </div>
+                </div>
+
+                {% if request.session.employee.role == 'O' %}
+                <a href="{% url 'CreateProject' %}"
+                    class="list-group-item list-group-item-action rounded py-2">
+                    <span class="text-nowrap">Create New Project</span>
+                </a>
+                {% endif %}
+                
+                {% if request.session.employee.role == 'O' or request.session.employee.role == 'PM' %}
+                <a href="{% url 'ViewProjects' %}"
+                   class="list-group-item list-group-item-action rounded py-2"> 
+                   <span class="text-nowrap">Manage Projects</span>
+                </a>
+                {% elif request.session.employee.role == 'E' and request.session.employee.teamID %}
+                <a href="{% url 'ViewProjects' %}"
+                   class="list-group-item list-group-item-action rounded py-2"> 
+                   <span class="text-nowrap">My Projects</span>
+                </a>
+                {% endif %}
+
+                {% if request.session.employee.role == 'O' or request.session.employee.role == 'PM' %}
+                <a href="{% url 'ManageTeams' %}"
                    class="list-group-item list-group-item-action py-2 rounded"
                    aria-current="true">
                   <span class="text-nowrap">Manage Teams</span>
                 </a>
-
-                <a href="{% url 'CreateProject' %}"
-                    class="list-group-item list-group-item-action rounded py-2">
-                    <span class="text-nowrap">Create Project</span>
+                {% elif request.session.employee.role == 'E' and request.session.employee.teamID %}
+                <a href="{% url 'TeamDashboard' teamID=request.session.employee.teamID %}"
+                    class="list-group-item list-group-item-action py-2 rounded"
+                    aria-current="true">
+                    <span class="text-nowrap">My Team</span>
                 </a>
-                
-                <a href="{% url 'ViewProjects' %}"
-                   class="list-group-item list-group-item-action rounded py-2">
-                  
-                   <span class="text-nowrap">Manage Projects</span>
+                {% elif request.session.employee.role == 'RM' %}
+                <a href="{% url 'ManageTeams' %}"
+                    class="list-group-item list-group-item-action py-2 rounded"
+                    aria-current="true">
+                    <span class="text-nowrap">View Teams</span>
                 </a>
+                {% endif %}
 
-                <a href="{% url 'CreateTask' %}"
-                   class="list-group-item list-group-item-action rounded py-2">
-                   <span class="text-nowrap">Create Task</span>
-                </a>
-
-                <a href="{% url 'SubmitReport' %}"
-                   class="list-group-item list-group-item-action rounded py-2">
-                   <span class="text-nowrap">Submit Report</span>
-                </a>
-
+                {% if request.session.employee.role == 'RM' or request.session.employee.role == 'O' %}
                 <a href="{% url 'Resources' %}"
-                   class="list-group-item list-group-item-action rounded py-2">
-                   <span class="text-nowrap">View Resources</span>
+                    class="list-group-item list-group-item-action rounded py-2">
+                    <span class="text-nowrap">Manage Resources</span>
                 </a>
+                {% else %}
+                <a href="{% url 'Resources' %}"
+                    class="list-group-item list-group-item-action rounded py-2">
+                    <span class="text-nowrap">View Resources</span>
+                </a>
+                {% endif %}
 
-                <a href="{% url 'ManageResources' %}"
-                   class="list-group-item list-group-item-action rounded py-2">
-                   <span class="text-nowrap">Manage Resources</span>
-                </a>
-                
               </div>
             </div>
           </nav>        
@@ -96,12 +130,6 @@
             <div class="container-fluid mx-2">
               <a class="d-md-none navbar-brand fw-semibold" href="#">Logo</a>
               <a class="d-none d-md-block navbar-brand fw-semibold" href="#">Project Management System</a>
-              <div class="justify-content-end ms-auto me-3">
-                <ul class="navbar-nav">
-                  <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">UserProfile</a>
-                  </li>
-              </div>
               <button class="d-lg-none navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
@@ -111,6 +139,24 @@
         </header>
 
         <!--Main layout-->
+        
+        {% if messages %}
+        {% for msg in messages %}
+            {% if msg.tags == 'error' %}
+                <div class="fixed-top alert alert-danger alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
+                    {{ msg }}
+                </div>
+            {% else %}
+                <div class="fixed-top alert alert-success alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
+                    {{ msg }}
+                </div>
+            {% endif %}
+        {% endfor %}
+        {% endif %}
+
+
         <main style="margin-top: 60px">
           <div class="container-fluid">
             {% block content %}
