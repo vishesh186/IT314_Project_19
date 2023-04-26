@@ -18,12 +18,12 @@ def test_login():
     driver = webdriver.Chrome()
 
     driver.maximize_window()
-    driver.get("http://127.0.0.1:8000/login/")
+    driver.get("https://project-management-system.up.railway.app/login/")
 
     # Find the username input element and enter a value
     username_input = driver.find_element(By.NAME, "username")
     username_input.clear()
-    username_input.send_keys("000002")
+    username_input.send_keys("E000001")
 
     # Find the password input element and enter a value
     password_input = driver.find_element(By.NAME, "password")
@@ -48,12 +48,12 @@ def test_view_Projects_employee():
     driver = webdriver.Chrome()
 
     driver.maximize_window()
-    driver.get("http://127.0.0.1:8000/login/")
+    driver.get("https://project-management-system.up.railway.app/login/")
 
     # Find the username input element and enter a value
     username_input = driver.find_element(By.NAME, "username")
     username_input.clear()
-    username_input.send_keys("000002")
+    username_input.send_keys("E000002")
 
     # Find the password input element and enter a value
     password_input = driver.find_element(By.NAME, "password")
@@ -75,12 +75,12 @@ def test_view_Resources_employee():
     driver = webdriver.Chrome()
 
     driver.maximize_window()
-    driver.get("http://127.0.0.1:8000/login/")
+    driver.get("https://project-management-system.up.railway.app/login/")
 
     # Find the username input element and enter a value
     username_input = driver.find_element(By.NAME, "username")
     username_input.clear()
-    username_input.send_keys("000002")
+    username_input.send_keys("E000002")
 
     # Find the password input element and enter a value
     password_input = driver.find_element(By.NAME, "password")
@@ -88,7 +88,7 @@ def test_view_Resources_employee():
     password_input.send_keys("pass")
     password_input.send_keys(Keys.RETURN)
 
-    driver.get("http://127.0.0.1:8000/resources/")
+    driver.get("https://project-management-system.up.railway.app/resources/")
 
     # Verify that resource dashboard is displayed
     project_id = driver.find_element(By.XPATH,'/html/body/main/div/div/div[1]/h3').text
@@ -97,16 +97,114 @@ def test_view_Resources_employee():
     # Close the browser
     driver.close()
 
-def test_view_task_manager():
+
+
+def test_view_Teams_Manager():
     driver = webdriver.Chrome()
 
     driver.maximize_window()
-    driver.get("http://127.0.0.1:8000/login/")
+    driver.get("https://project-management-system.up.railway.app/login/")
 
     # Find the username input element and enter a value
     username_input = driver.find_element(By.NAME, "username")
     username_input.clear()
-    username_input.send_keys("000003")
+    username_input.send_keys("PM00001")
+
+    # Find the password input element and enter a value
+    password_input = driver.find_element(By.NAME, "password")
+    password_input.clear()
+    password_input.send_keys("pass")
+    password_input.send_keys(Keys.RETURN)
+
+    driver.get("https://project-management-system.up.railway.app/manage-teams/")
+
+    # Verify that team dashboard is displayed
+    project_id = driver.find_element(By.XPATH,'/html/body/main/div/div/div[1]/h3').text
+    assert project_id == "Team Management Dashboard"
+
+    # Close the browser
+    driver.close()
+
+
+
+def test_view_Resource_booking():
+    driver = webdriver.Chrome()
+
+    driver.maximize_window()
+    driver.get("https://project-management-system.up.railway.app/login/")
+
+    # Find the username input element and enter a value
+    username_input = driver.find_element(By.NAME, "username")
+    username_input.clear()
+    username_input.send_keys("PM00001")
+
+    # Find the password input element and enter a value
+    password_input = driver.find_element(By.NAME, "password")
+    password_input.clear()
+    password_input.send_keys("pass")
+    password_input.send_keys(Keys.RETURN)
+
+    driver.get("https://project-management-system.up.railway.app/resources/")
+
+    # Verify that resource booking request dashboard is displayed
+    project_id = driver.find_element(By.XPATH,'/html/body/main/div/div/div[2]/div/div[1]/div[1]/div/div[2]/div[2]/a')
+    project_id.click()
+
+    txt = driver.find_element(By.XPATH,"/html/body/main/div/div/div[1]/h3").text
+    assert txt == "Resource Booking Request"
+
+    # Close the browser
+    driver.close()
+
+
+
+def test_view_avilable_resources():
+    driver = webdriver.Chrome()
+
+    driver.maximize_window()
+    driver.get("https://project-management-system.up.railway.app/login/")
+
+    # Find the username input element and enter a value
+    username_input = driver.find_element(By.NAME, "username")
+    username_input.clear()
+    username_input.send_keys("E000004")
+
+    # Find the password input element and enter a value
+    password_input = driver.find_element(By.NAME, "password")
+    password_input.clear()
+    password_input.send_keys("pass")
+    password_input.send_keys(Keys.RETURN)
+
+    driver.get("https://project-management-system.up.railway.app/resources/")
+
+    manage = driver.find_element(By.XPATH,'/html/body/header/nav[1]/div/div/a[3]')
+    manage.click()
+
+    resources = driver.find_element(By.XPATH, '/html/body/main/div/div/div[2]/ul/li[1]/a')
+    resources.click()
+
+    avilable = driver.find_element(By.XPATH, '/html/body/main/div/div/div[2]/ul/li[1]/ul/li[1]/button')
+    avilable.click()
+
+    # Verify that available resources are displayed
+    txt = driver.find_element(By.XPATH,"/html/body/main/div/div/div[1]/h3").text
+    assert txt == 'Resources'
+
+    # Close the browser
+    driver.close()
+
+
+
+def test_view_task_manager():
+    driver = webdriver.Chrome()
+
+    driver.maximize_window()
+    driver.get("https://project-management-system.up.railway.app/login/")
+
+    # Find the username input element and enter a value
+    username_input = driver.find_element(By.NAME, "username")
+    username_input.clear()
+    username_input.send_keys("PM00002")
 
     # Find the password input element and enter a value
     password_input = driver.find_element(By.NAME, "password")
@@ -132,7 +230,7 @@ def test_view_task_manager():
 
     # Verify that task view for manager is displayed
     txt = driver.find_element(By.XPATH,"/html/body/main/div/div/div[1]/h3").text
-    assert txt == "TSK230423191601 : Task 004"
+    assert txt == "TS200001 : Develop App"
 
     # Close the browser
     driver.close()
