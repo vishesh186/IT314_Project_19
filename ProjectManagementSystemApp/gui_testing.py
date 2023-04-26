@@ -234,3 +234,50 @@ def test_view_task_manager():
 
     # Close the browser
     driver.close()
+
+    
+    
+def test_create_new_team():
+    driver = webdriver.Chrome()
+
+    driver.maximize_window()
+    driver.get("https://project-management-system.up.railway.app/login/")
+
+    # Find the username input element and enter a value
+    username_input = driver.find_element(By.NAME, "username")
+    username_input.clear()
+    username_input.send_keys("E000010")
+
+    # Find the password input element and enter a value
+    password_input = driver.find_element(By.NAME, "password")
+    password_input.clear()
+    password_input.send_keys("pass")
+    password_input.send_keys(Keys.RETURN)
+
+    driver.get("https://project-management-system.up.railway.app/manage-teams/")
+
+    create = driver.find_element(By.XPATH,'/html/body/main/div/div/div[2]/ul/li[2]/button')
+    create.click()
+
+    name = driver.find_element(By.NAME, 'name')
+    name.clear()
+    name.send_keys("test_team")
+
+    manager = driver.find_element(By.NAME, 'manager')
+    manager.click()
+
+    man = driver.find_element(By.XPATH,"/html/body/main/div/div/div[2]/div/div[2]/div/div[2]/div/div/form/div[1]/div[2]/select/option[4]")
+    man.click()
+
+    description = driver.find_element(By.NAME,"description")
+    description.clear()
+    description.send_keys("testing_team_creation")
+
+    submit = driver.find_element(By.XPATH, '/html/body/main/div/div/div[2]/div/div[2]/div/div[2]/div/div/form/button')
+    submit.click()
+
+    validate = driver.find_element(By.XPATH, '/html/body/div').text
+    assert validate == 'New Team Created Successfully.'
+
+    # Close the browser
+    driver.close()
