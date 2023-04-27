@@ -281,3 +281,62 @@ def test_create_new_team():
 
     # Close the browser
     driver.close()
+
+    
+
+def test_create_project():
+    driver = webdriver.Chrome()
+
+    driver.maximize_window()
+    driver.get("https://project-management-system.up.railway.app/login/")
+
+    # Find the username input element and enter a value
+    username_input = driver.find_element(By.NAME, "username")
+    username_input.clear()
+    username_input.send_keys("E000010")
+
+    # Find the password input element and enter a value
+    password_input = driver.find_element(By.NAME, "password")
+    password_input.clear()
+    password_input.send_keys("pass")
+    password_input.send_keys(Keys.RETURN)
+
+    clk = driver.find_element(By.XPATH, '/html/body/header/nav[1]/div/div/a[1]')
+    clk.click()
+
+    title = driver.find_element(By.NAME, "title")
+    title.clear()
+    title.send_keys("test_project")
+
+    client = driver.find_element(By.NAME, "client")
+    client.clear()
+    client.send_keys("test_project_client")
+
+    budget = driver.find_element(By.NAME, "budget")
+    budget.clear()
+    budget.send_keys("10000")
+
+    description = driver.find_element(By.NAME, "description")
+    description.clear()
+    description.send_keys("testing_create_project")
+
+    team = driver.find_element(By.XPATH, "/html/body/main/div/div/div[2]/div/div/form/div[4]/div[1]/select")
+    team.click()
+
+    select = driver.find_element(By.XPATH,'/html/body/main/div/div/div[2]/div/div/form/div[4]/div[1]/select/option[2]')
+    select.click()
+
+    deadline = driver.find_element(By.XPATH, '/html/body/main/div/div/div[2]/div/div/form/div[4]/div[2]/input')
+    deadline.click()
+    date_time_str = '27-04-23 13:30:00'
+    deadline.send_keys(date_time_str)
+
+    submit = driver.find_element(By.XPATH, '/html/body/main/div/div/div[2]/div/div/form/button')
+    submit.click()
+
+
+    tex = driver.find_element(By.XPATH,"/html/body/main/div/div/div[1]/h3").text
+    assert tex == 'Create New Project'
+
+    # Close the browser
+    driver.close()
