@@ -1,0 +1,94 @@
+{% extends 'navbar.html' %}
+
+{% block content %}
+<div class="row px-2 px-md-4 py-4">
+    <div class="col-12 mb-2">
+        <h3 class="m-0">Resource Booking Request</h3>
+        <hr class="border-3 my-2">
+    </div>
+    <div class="col-12 mb-3">
+        <div class="row px-2">
+            <div class="p-3 bg-body-secondary rounded-3">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input class="form-control" type="text" value="{{resource.resourceID}} : {{resource.name}}" readonly>
+                    </div>
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <div class="form-check form-check-inline">
+                                <input checked required class="form-check-input" type="radio" name="bookingType" value="EM">
+                                <label class="form-check-label">Self Usage</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input required class="form-check-input" type="radio" name="bookingType" value="TM">
+                                <label class="form-check-label">Team Usage</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Purpose</label>
+                      <textarea name='purpose' class="form-control" placeholder="Describe the purpose for resource" style="height: 100px" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label class="form-label">Booking From</label>
+                            <input id="fromDateTime" type="datetime-local" name="from" class="form-control" required>
+                        </div>
+                        <div class="mb-3 col-md-6">
+                            <label class="form-label">Booking Till</label>
+                            <input id="tillDateTime" type="datetime-local" name="till" class="form-control" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Request Resource</button>
+                </form>            
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const fromDT = document.getElementById('fromDateTime');
+    const tillDT = document.getElementById('tillDateTime');
+
+    const now = new Date();
+    
+    var DD = now.getDate();
+    var MM = now.getMonth() + 1;
+    var YYYY = now.getFullYear();
+    var HH = now.getHours();
+    var MN = now.getMinutes();
+
+    if (DD < 10) {
+        DD = '0' + DD;
+    }
+
+    if (MM < 10) {
+        MM = '0' + MM;
+    } 
+
+    if (HH < 10) {
+        HH = '0' + HH;
+    } 
+
+    if (MN < 10){
+        MN = '0' + MN;
+    }
+
+    nowStr = YYYY + '-' + MM + '-' + DD + 'T' + HH + ':' + MN
+
+    fromDT.setAttribute('min', nowStr);
+    tillDT.setAttribute('min', nowStr);
+
+    fromDT.addEventListener("input", (e) => {
+        tillDT.setAttribute('min', fromDT.value)
+    });
+
+
+    tillDT.addEventListener("input", (e) => {
+        fromDT.setAttribute('max', tillDT.getAttribute('value'))
+    })
+</script>
+
+{% endblock %}
