@@ -33,11 +33,15 @@
             <div class="col">
                 {% for member in members %}
                 <div class="row align-items-center mb-2 bg-success-subtle rounded-3 p-1 py-2">
-                    <span class="col-md-auto mb-1 mb-md-0">{{member.name}}</span>
-                    <span class="col-md text-muted text-end" style="font-size: 14px">
+                    <span class="col-md mb-1 mb-md-0 fw-semibold">{{member.name}}</span>
+                    <span class="col-md-auto mb-1 text-muted" style="font-size: 14px">
+                        {% include 'team/rating.html' with value=member.avgRating %}
+                    </span>
+                    <span class="col-12 text-muted" style="font-size: 14px">
                         Joined on {{member.joiningDate}}
                     </span>
                 </div>
+
                 {% empty %}
                 <div class="row justify-content-center">
                     <i class="text-center">Team has no members</i>
