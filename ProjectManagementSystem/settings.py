@@ -12,6 +12,14 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 import os
 from pathlib import Path
+from djongo.base import DatabaseWrapper
+from djongo.operations import DatabaseOperations
+
+class PatchedDatabaseOperations(DatabaseOperations):
+    def conditional_expression_supported_in_where_clause(self, expression):
+        return False
+
+DatabaseWrapper.ops_class = PatchedDatabaseOperations
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,8 +34,9 @@ SECRET_KEY = 'django-insecure-igz+t44e=sp18-@2dbh8i5s+m7%ql5u@rtq6s*$ep4h5+ui6k@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["project-management-system.up.railway.app", '127.0.0.1']
 
+CSRF_TRUSTED_ORIGINS = ['https://project-management-system.up.railway.app']
 
 # Application definition
 
@@ -39,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ProjectManagementSystemApp',
+    'tinymce',
+    'whitenoise.runserver_nostatic',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = 'ProjectManagementSystem.urls'
@@ -72,45 +84,41 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ProjectManagementSystem.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-
 DATABASES = {
         'default': {
             'ENGINE': 'djongo',
-            'NAME': 'pms',
+            'NAME': 'PMSDB',
             'CLIENT': {
-                'host': 'mongodb+srv://admin:<pass>@projectmanagementsystem.nhu5mhi.mongodb.net/?retryWrites=true&w=majority'
+                'host': 'mongodb://mongo:oyd5CXpDF7ZQ5UHI4fJ2@containers-us-west-206.railway.app:6478',
+                'username':'mongo',
+                'password':'oyd5CXpDF7ZQ5UHI4fJ2'
             }  
         }
 }
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-#     },
-#     {
-#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-#     },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Calcutta'
 
 USE_I18N = True
 
@@ -121,8 +129,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'Landing'
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = 'smtp.gmail.com'  
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "projectmanagementsystem314@gmail.com"
+EMAIL_HOST_PASSWORD = 'egtzmmwritynljcg'
