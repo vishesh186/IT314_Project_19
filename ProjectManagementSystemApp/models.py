@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from tinymce.models import HTMLField
 from datetime import datetime
+from django.utils import timezone
 from django.db.models import Avg
 from django.forms import ModelForm
 
@@ -60,7 +61,7 @@ class Employee(models.Model):
     employeeID = models.CharField(max_length=10, primary_key=True)
     name = models.CharField(max_length=64)
     email = models.EmailField()
-    joiningDate = models.DateField(null=True, blank=True)
+    joiningDate = models.DateField(auto_now_add=True, null=True, blank=True)
     salary = models.PositiveIntegerField(default=0)
     role = models.CharField(max_length=6, default='E',
         choices=[
@@ -126,7 +127,7 @@ class Project(models.Model):
     allocatedBudget = models.PositiveIntegerField(blank=True)
     utilizedBudget = models.PositiveIntegerField(blank=True, default=0)
     deadline = models.DateTimeField()
-    created = models.DateTimeField(default=datetime.now())
+    created = models.DateTimeField(auto_now_add=True)
     completed = models.DateTimeField(blank=True)
     status = models.CharField(max_length=1, default='O',
         choices=[
@@ -146,6 +147,7 @@ class Project(models.Model):
     
     def __str__(self):
         return self.projectID
+    
     
     
 
