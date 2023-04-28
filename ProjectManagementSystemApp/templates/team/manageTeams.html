@@ -52,11 +52,17 @@
                                 <td>{{ team.created }}</td>
                             </tr>
                         </table>
+                        {% if request.session.employee.role != 'RM' and request.session.employee.role != 'E' %}
                         <div class="mb-2 text-end">
                             <a class="btn btn-outline-dark btn-sm" href="{% url 'TeamDashboard' teamID=team.teamID %}">Manage Team</a>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
+                {% empty %}
+                <div class="row justify-content-center">
+                    <i class="text-center">No teams to display.</i>
+                </div> 
                 {% endfor %}
             </div>
             {% if request.session.employee.role == 'O' %}
@@ -66,8 +72,6 @@
             {% endif %}
         </div>
     </div>
-
-
 </div>
 
 
