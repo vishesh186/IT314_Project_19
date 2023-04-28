@@ -10,16 +10,16 @@ from django.contrib.auth import logout, authenticate, login
 from django.forms.models import model_to_dict
 from django.views.decorators.cache import cache_control
 from django.contrib import messages
-import pytz
-
-
-utc = pytz.UTC
 
 
 # Create your views here.
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def Landing(request):
     if request.user.is_authenticated:
+        if request.user.is_staff:
+            messages.error(request, "Staff accounts cannot be used.")
+            return redirect('Logout')
+        
         if request.session['employee']['role'] == 'RM':
             return redirect('Resources')
         else:
@@ -32,12 +32,16 @@ def Landing(request):
 def Login(request):
     if request.user.is_authenticated:
         return redirect('Landing')
+
     if request.method == "POST":
         user = authenticate(username=request.POST['username'], password=request.POST['password'])
         if user is not None:
+            if user.is_staff:
+                messages.error(request, "Staff accounts cannot be used.")
+                return redirect('Landing')
+            
             request.session.set_expiry(0)
             employee = model_to_dict(Employee.objects.get(employeeID=request.POST['username']))
-            employee['joiningDate'] = employee['joiningDate'].strftime("%d-%m-%Y")
             request.session['employee'] = employee
             login(request, user)
             return redirect('Landing')
@@ -57,6 +61,14 @@ def Logout(request):
 # Only for Owner
 @login_required
 def CreateTeam(request):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+        
     if request.session['employee']['role'] != 'O':
         raise PermissionDenied
     if request.method == "POST":
@@ -93,6 +105,14 @@ def CreateTeam(request):
 # Owner and Project Manager
 @login_required
 def ManageTeams(request):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
     userRole = request.session['employee']['role']
     if userRole != 'O' and userRole != 'PM' and userRole != 'RM':
         raise PermissionDenied
@@ -109,6 +129,14 @@ def ManageTeams(request):
 # Owner, PM and Employee
 @login_required
 def TeamDashboard(request, teamID):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
     userRole = request.session['employee']['role']
     if userRole != 'O' and userRole != 'PM' and userRole != 'E':
         raise PermissionDenied
@@ -134,6 +162,14 @@ def TeamDashboard(request, teamID):
 # Owner, Project Manager
 @login_required
 def EditMembers(request, teamID):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
     userRole = request.session['employee']['role']
     if userRole != 'O' and userRole != 'PM':
         raise PermissionDenied
@@ -185,6 +221,14 @@ def EditMembers(request, teamID):
 # Only for Owner
 @login_required
 def CreateProject(request):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
     if request.session['employee']['role'] != 'O':
         raise PermissionDenied
     teams = Team.objects.all()
@@ -212,6 +256,14 @@ def CreateProject(request):
 
 @login_required
 def EditProject(request, projectID):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
     if request.session['employee']['role'] != 'O':
         raise PermissionDenied
     try:
@@ -243,6 +295,14 @@ def EditProject(request, projectID):
 @login_required
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def ViewProjects(request):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
     userRole = request.session['employee']['role']
     if userRole != 'O' and userRole != 'PM' and userRole != 'E':
         raise PermissionDenied
@@ -262,6 +322,14 @@ def ViewProjects(request):
 
 @login_required
 def ProjectDashboard(request, projectID):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
     userRole = request.session['employee']['role']
     if userRole != 'O' and userRole != 'PM' and userRole != 'E':
         raise PermissionDenied
@@ -307,14 +375,79 @@ def ProjectDashboard(request, projectID):
 
 
 @login_required
+def DeleteProject(request, projectID):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
+    userRole = request.session['employee']['role']
+    if userRole != 'O':
+        raise PermissionDenied
+    
+    try:
+        project = Project.objects.get(projectID=projectID)
+    except:
+        raise ObjectDoesNotExist
+    
+    if project.managerID != request.session['employee']['employeeID']:
+        raise PermissionDenied
+
+    if Task.objects.filter(projectID=projectID):
+        messages.success(request, "Cannot delete project already under work.")
+    else:
+        project.delete()
+        messages.success(request, "Task deleted successfully.")
+    
+    return redirect('ViewProjects')
+
+
+@login_required
+def MarkProjectAsCompleted(request, projectID):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
+    try:
+        project = Project.objects.get(projectID=projectID)
+    except:
+        raise ObjectDoesNotExist
+    
+    if Task.objects.filter(projectID=projectID, status='C').count() == Task.objects.filter(projectID=projectID).count():
+        project.status = 'C'
+        project.completed = timezone.now()
+        project.save()
+        messages.success(request, projectID + ' : Project Completed Successfully.')
+        return redirect('ViewProjects')
+    else:
+        messages.error(request, projectID + ' : Tasks not completed. Cannot mark project as complete.')
+        return redirect(reverse("ProjectDashboard", kwargs={"projectID": projectID}))
+
+
+@login_required
 def CreateTask(request, projectID):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
     try: 
         project = Project.objects.get(projectID=projectID)
     except:
         raise ObjectDoesNotExist
     
     userRole = request.session['employee']['role']
-    if userRole != 'O' and userRole != 'PM':
+    if userRole != 'PM':
         raise PermissionDenied
     
     if userRole == 'PM' and request.session['employee']['employeeID'] != project.managerID:
@@ -357,7 +490,50 @@ def CreateTask(request, projectID):
 
 
 @login_required
+def DeleteTask(request, taskID):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
+    userRole = request.session['employee']['role']
+    if userRole != 'PM':
+        raise PermissionDenied
+    
+    try:
+        task = Task.objects.get(taskID=taskID)
+    except:
+        raise ObjectDoesNotExist
+    
+    if task.managerID != request.session['employee']['employeeID']:
+        raise PermissionDenied
+
+    projectID = task.projectID
+
+    if task.status == 'I':
+        task.delete()
+        messages.success(request, "Task deleted successfully.")
+    else:
+        messages.error(request, "Cannot delete a task under review or completed.")
+    
+    return redirect(reverse("ProjectDashboard", kwargs={"projectID":projectID}))
+
+
+
+
+@login_required
 def TaskDashboard(request, taskID):
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot be used.")
+        return redirect('Logout')
+    
+    if not request.session.get('employee'):
+        messages.error(request, "Session logged out due to inactivity.")
+        return redirect('Logout')
+    
     try:
         task = Task.objects.get(taskID=taskID)
     except:
@@ -411,9 +587,10 @@ def TaskDashboard(request, taskID):
             task.status = 'R'
             task.submitted = datetime.now()
             task.save()
-            messages.success(request, task.taskID + ' : Task Report Rejected.')
+            messages.success(request, task.taskID + ' : Task Report Submitted.')
             return redirect(reverse("ProjectDashboard", kwargs={"projectID":task.projectID}))
     return render(request, 'task/taskDashboard.html', {'form': reportForm, 'task':task, 'teamMembers':teamMembers})
+
 
 @login_required
 def CreateResource(request):
