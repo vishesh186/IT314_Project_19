@@ -128,8 +128,7 @@
           <!-- Navbar -->
           <nav id="main-navbar" class="navbar navbar-expand-lg fixed-top bg-white border border-bottom">
             <div class="container-fluid mx-2">
-              <a class="d-md-none navbar-brand fw-semibold" href="#">Logo</a>
-              <a class="d-none d-md-block navbar-brand fw-semibold" href="#">Project Management System</a>
+              <img style="height: 40px" src="{% static 'images/logo.png' %}"/>
               <button class="d-lg-none navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
@@ -181,5 +180,25 @@
       }
     </script>
 
+    <script>
+      var today = new Date();
+      var dd = today.getDate();
+      var mm = today.getMonth() + 1; //January is 0!
+      var yyyy = today.getFullYear();
+
+      if (dd < 10) {
+        dd = '0' + dd;
+      }
+
+      if (mm < 10) {
+        mm = '0' + mm;
+      } 
+          
+      today = yyyy + '-' + mm + '-' + dd;
+      dates = document.querySelectorAll('input[type=date]');
+      for (var i = 0; i < dates.length ; i++) {
+        dates[i].setAttribute("min", today);
+      }
+    </script>
 </html>
 
